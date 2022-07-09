@@ -56,8 +56,7 @@ export default {
 .albums-section {
     background-color: $bg_secondary;
     padding: 5rem 0 4rem;
-}
-@media (min-width: 1400px){
+
     .container {
         max-width: 1100px;
     }
