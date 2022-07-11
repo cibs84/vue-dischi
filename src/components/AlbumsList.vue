@@ -1,13 +1,16 @@
 <template>
     <section class="albums-section" :class="{loader: !this.transferCompleted}">
-        <div class="container">
+                
+        <div class="container" v-if="this.transferCompleted">
+            <!-- Filtra gli album per genere -->
+            <GenreFilter @genreFilter="genreFilterAlbums"/>
+
             <!-- Le cards album saranno visualizzate SE sarà completato il trasferimento dei dati relativi agli album -->
             <div 
                 class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5"
-                v-if="this.transferCompleted"
             >
                 <AlbumCard 
-                    v-for="(singleAlbum, index) in dataAlbums" 
+                    v-for="(singleAlbum, index) in albumsFiltered" 
                     :key="index" 
                     :url="singleAlbum.poster"
                     :title="singleAlbum.title"
@@ -16,9 +19,10 @@
                 />
             </div>
 
-            <!-- ALTRIMENTI sarà visualizzato lo SpinneLoader fino al completamento del trasferimento dati -->
-            <SpinnerLoader v-else/>
         </div>
+        
+        <!-- ALTRIMENTI sarà visualizzato lo SpinneLoader fino al completamento del trasferimento dati -->
+        <SpinnerLoader v-else/>
     </section>
 </template>
 
@@ -26,19 +30,22 @@
 <script>
 import AlbumCard from "./AlbumCard.vue";
 import SpinnerLoader from "./SpinnerLoader.vue";
+import GenreFilter from "./GenreFilter.vue";
 import axios from "axios";
 
 export default {
     name: 'AlbumsList',
     components: {
         AlbumCard,
-        SpinnerLoader
+        SpinnerLoader,
+        GenreFilter
     },
     data(){
         return {
             url: "https://flynn.boolean.careers/exercises/api/array/music",
             dataAlbums : [],
             transferCompleted: false,
+            selectedGenre: ""
         }
     },
     methods: {
@@ -54,6 +61,20 @@ export default {
             })
             .catch(err => {
                 console.log("Error: ", err)
+            });
+        },
+        genreFilterAlbums(selectedGenre){
+        this.selectedGenre = selectedGenre;
+        }
+    },
+    computed: {
+        albumsFiltered(){
+            if (this.selectedGenre === 'all') {
+                return this.dataAlbums;
+            }
+
+            return this.dataAlbums.filter(album => {
+                return album.genre.includes(this.selectedGenre);
             });
         }
     },
